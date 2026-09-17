@@ -59,7 +59,8 @@
   <body class="font-body bg-paper dark:bg-ink text-ink dark:text-paper transition-colors">
     <div id="root"></div>
 
-    <script type="module" src="/MacroTracking/src/main.jsx"></script>
+    <!-- IMPORTANT: Vite source path stays /src/main.jsx -->
+    <script type="module" src="/src/main.jsx"></script>
 
     <script>
       if ('serviceWorker' in navigator) {
@@ -67,7 +68,7 @@
           navigator.serviceWorker
             .register('/MacroTracking/sw.js')
             .catch(() => {
-              /* offline-first still works without a controlling SW */
+              /* Service worker registration failed */
             });
         });
       }
