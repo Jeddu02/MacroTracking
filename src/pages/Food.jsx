@@ -107,23 +107,24 @@ export default function Food() {
   const logsByMeal = (meal) => logs.filter((l) => l.meal === meal);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex flex-col gap-5">
-      <header className="flex items-center justify-between">
+    <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex flex-col gap-5 mf-stagger">
+      <header className="flex items-center justify-between mf-interactive">
         <h1 className="font-display text-2xl font-semibold">Food</h1>
         <button
           onClick={() => {
             setTargetMeal('breakfast');
             setFlow('camera');
           }}
-          className="text-xs font-semibold bg-navy dark:bg-volt text-volt dark:text-navy rounded-full px-4 py-2"
-        >
+          className="text-xs font-semibold bg-navy dark:bg-volt text-volt dark:text-navy rounded-full px-4 py-2 mf-interactive" 
           Scan Food
         </button>
       </header>
 
-      <MacroSummary totals={totals} targets={targets} />
+      <div className="mf-hover-lift">
+  <MacroSummary totals={totals} targets={targets} />
+</div>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 mf-stagger">
         {MEAL_ORDER.map((meal) => (
           <MealSection
             key={meal}
