@@ -116,6 +116,7 @@ export default function Food() {
             setFlow('camera');
           }}
           className="text-xs font-semibold bg-navy dark:bg-volt text-volt dark:text-navy rounded-full px-4 py-2 mf-interactive" 
+          >
           Scan Food
         </button>
       </header>
