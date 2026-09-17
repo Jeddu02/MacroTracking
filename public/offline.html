@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MacroFit — Offline</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #132140;
+        color: #eef1ec;
+        font-family: system-ui, sans-serif;
+        text-align: center;
+        padding: 24px;
+      }
+      .card { max-width: 360px; }
+      h1 { font-size: 1.4rem; margin-bottom: 8px; }
+      p { opacity: 0.8; line-height: 1.5; }
+      button {
+        margin-top: 20px;
+        background: #c6f135;
+        color: #132140;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 20px;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>You're offline</h1>
+      <p>
+        MacroFit already loaded once, so your logs, workouts and history are still on this
+        device. Reconnect to sync or use anything new — camera food scans and photo estimates
+        need a connection.
+      </p>
+      <button onclick="location.reload()">Try again</button>
+    </div>
+  </body>
+</html>

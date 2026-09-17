@@ -1,0 +1,24 @@
+{
+  "name": "MacroFit — Macro & Workout Tracker",
+  "short_name": "MacroFit",
+  "description": "Track macros, scan food, plan workouts and follow your progress — private and offline-first.",
+  "start_url": "/?source=pwa",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "portrait-primary",
+  "background_color": "#132140",
+  "theme_color": "#132140",
+  "categories": ["health", "fitness", "lifestyle"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Scan food", "url": "/food?action=scan", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Start workout", "url": "/workout?action=start", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Log weight", "url": "/progress?action=weight", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
