@@ -5,12 +5,19 @@
 :root {
   color-scheme: light;
 }
+
 .dark {
   color-scheme: dark;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -18,23 +25,251 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Typography                                                                  */
+/* -------------------------------------------------------------------------- */
+
 .font-display {
   font-family: 'Space Grotesk', system-ui, sans-serif;
 }
 
-/* Restrained card treatment: hairline border, not the default soft-shadow kit */
+/* -------------------------------------------------------------------------- */
+/* Cards                                                                       */
+/* -------------------------------------------------------------------------- */
+
 .card {
   @apply bg-surface-light dark:bg-surface-dark border border-edge-light dark:border-edge-dark rounded-card;
 }
+
+/* -------------------------------------------------------------------------- */
+/* MacroFit animation system                                                  */
+/* -------------------------------------------------------------------------- */
+
+@keyframes mf-page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mf-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mf-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mf-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mf-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes mf-pop {
+  0% {
+    transform: scale(0.96);
+  }
+
+  60% {
+    transform: scale(1.02);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes mf-pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.65;
+  }
+}
+
+/* Page entrance */
+.mf-page {
+  animation: mf-page-enter 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Generic animation utilities */
+.mf-fade-in {
+  animation: mf-fade-in 250ms ease-out both;
+}
+
+.mf-slide-up {
+  animation: mf-slide-up 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mf-slide-down {
+  animation: mf-slide-down 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mf-scale-in {
+  animation: mf-scale-in 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mf-pop {
+  animation: mf-pop 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mf-pulse-soft {
+  animation: mf-pulse-soft 1.8s ease-in-out infinite;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Stagger helpers                                                            */
+/* -------------------------------------------------------------------------- */
+
+.mf-stagger > * {
+  animation: mf-slide-up 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mf-stagger > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.mf-stagger > *:nth-child(2) {
+  animation-delay: 50ms;
+}
+
+.mf-stagger > *:nth-child(3) {
+  animation-delay: 100ms;
+}
+
+.mf-stagger > *:nth-child(4) {
+  animation-delay: 150ms;
+}
+
+.mf-stagger > *:nth-child(5) {
+  animation-delay: 200ms;
+}
+
+.mf-stagger > *:nth-child(6) {
+  animation-delay: 250ms;
+}
+
+.mf-stagger > *:nth-child(n + 7) {
+  animation-delay: 300ms;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Interaction                                                                 */
+/* -------------------------------------------------------------------------- */
+
+.mf-interactive {
+  transition:
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+.mf-interactive:active {
+  transform: scale(0.975);
+}
+
+.mf-hover-lift {
+  transition:
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 180ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mf-hover-lift:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Macro progress animation                                                   */
+/* -------------------------------------------------------------------------- */
+
+.mf-progress {
+  transform-origin: left center;
+  animation: mf-scale-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Ring / progress graphics                                                    */
+/* -------------------------------------------------------------------------- */
 
 .ring-track {
   stroke: currentColor;
   opacity: 0.12;
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.35); border-radius: 999px; }
+/* -------------------------------------------------------------------------- */
+/* Scrollbar                                                                   */
+/* -------------------------------------------------------------------------- */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.35);
+  border-radius: 999px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Accessibility                                                              */
+/* -------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
