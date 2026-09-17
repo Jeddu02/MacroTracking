@@ -9,92 +9,329 @@ import { MEAL_LABELS } from '../utils/macros.js';
 export function CameraCapture({ onCapture, onCancel }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
+
   const [error, setError] = useState(null);
   const [facing, setFacing] = useState('environment');
   const [photo, setPhoto] = useState(null);
+  const [cameraReady, setCameraReady] = useState(false);
+  const [resolution, setResolution] = useState('');
 
   useEffect(() => {
     let cancelled = false;
+
     async function start() {
       try {
+        setError(null);
+        setCameraReady(false);
+        setResolution('');
+
         stopStream();
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing }, audio: false });
-        if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
+
+        if (!navigator.mediaDevices?.getUserMedia) {
+          setError('unsupported');
           return;
         }
+
+        const constraints = {
+          audio: false,
+          video: {
+            facingMode: { ideal: facing },
+            width: {
+              min: 1280,
+              ideal: 1920,
+              max: 3840
+            },
+            height: {
+              min: 720,
+              ideal: 1080,
+              max: 2160
+            },
+            aspectRatio: {
+              ideal: 16 / 9
+            }
+          }
+        };
+
+        let stream;
+
+        try {
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+        } catch {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: facing
+            },
+            audio: false
+          });
+        }
+
+        if (cancelled) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+
         streamRef.current = stream;
-        if (videoRef.current) videoRef.current.srcObject = stream;
+
+        const video = videoRef.current;
+
+        if (video) {
+          video.srcObject = stream;
+
+          await new Promise((resolve) => {
+            video.onloadedmetadata = resolve;
+          });
+
+          try {
+            await video.play();
+          } catch {
+            // Ignore autoplay errors.
+          }
+
+          const track = stream.getVideoTracks()[0];
+
+          if (track?.applyConstraints) {
+            try {
+              await track.applyConstraints({
+                width: {
+                  min: 1280,
+                  ideal: 1920,
+                  max: 3840
+                },
+                height: {
+                  min: 720,
+                  ideal: 1080,
+                  max: 2160
+                },
+                aspectRatio: {
+                  ideal: 16 / 9
+                }
+              });
+            } catch {
+              // Keep the resolution selected by the browser.
+            }
+          }
+
+          const settings = track?.getSettings?.();
+
+          if (settings?.width && settings?.height) {
+            setResolution(`${settings.width} × ${settings.height}`);
+          } else if (video.videoWidth && video.videoHeight) {
+            setResolution(`${video.videoWidth} × ${video.videoHeight}`);
+          }
+
+          setCameraReady(true);
+        }
       } catch (e) {
-        setError('permission');
+        console.error('Camera error:', e);
+
+        if (
+          e?.name === 'NotAllowedError' ||
+          e?.name === 'SecurityError'
+        ) {
+          setError('permission');
+        } else if (e?.name === 'NotFoundError') {
+          setError('not-found');
+        } else {
+          setError('camera');
+        }
       }
     }
+
     if (!photo) start();
+
     return () => {
       cancelled = true;
       stopStream();
     };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [facing, photo]);
 
   function stopStream() {
-    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
   }
 
   function capture() {
     const video = videoRef.current;
+
+    if (!video || !video.videoWidth || !video.videoHeight) {
+      return;
+    }
+
     const canvas = document.createElement('canvas');
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
-    setPhoto(canvas.toDataURL('image/jpeg', 0.85));
+
+    const context = canvas.getContext('2d', {
+      alpha: false
+    });
+
+    if (!context) return;
+
+    context.drawImage(
+      video,
+      0,
+      0,
+      video.videoWidth,
+      video.videoHeight
+    );
+
+    const image = canvas.toDataURL('image/jpeg', 0.94);
+
+    setPhoto(image);
     stopStream();
   }
 
   function handleUpload(e) {
     const file = e.target.files?.[0];
+
     if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onload = () => setPhoto(reader.result);
+
+    reader.onload = () => {
+      setPhoto(reader.result);
+    };
+
     reader.readAsDataURL(file);
+
+    e.target.value = '';
   }
 
-  if (error === 'permission') {
+  function switchCamera() {
+    setCameraReady(false);
+    setFacing((current) =>
+      current === 'environment' ? 'user' : 'environment'
+    );
+  }
+
+  if (error) {
     return (
       <div className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center text-white gap-4 p-6 text-center">
+        <Camera size={32} className="opacity-70" />
+
         <p className="max-w-xs text-sm opacity-80">
-          Camera access was denied or isn't available. You can still upload a photo instead.
+          {error === 'unsupported'
+            ? 'Your browser does not support camera access.'
+            : error === 'not-found'
+              ? 'No camera was found on this device.'
+              : 'Camera access was denied or the camera is unavailable.'}
         </p>
+
         <label className="bg-volt text-navy font-semibold rounded-xl px-5 py-3 cursor-pointer flex items-center gap-2">
-          <Upload size={16} /> Upload Photo Instead
-          <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+          <Upload size={16} />
+          Upload Photo Instead
+
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={handleUpload}
+          />
         </label>
-        <button onClick={onCancel} className="text-sm opacity-60 mt-2">Cancel</button>
-        {photo && <ConfirmPhoto photo={photo} onRetake={() => setPhoto(null)} onConfirm={() => onCapture(photo)} />}
+
+        <button
+          onClick={onCancel}
+          className="text-sm opacity-60 mt-2"
+        >
+          Cancel
+        </button>
       </div>
     );
   }
 
-  if (photo) return <ConfirmPhoto photo={photo} onRetake={() => setPhoto(null)} onConfirm={() => onCapture(photo)} />;
+  if (photo) {
+    return (
+      <ConfirmPhoto
+        photo={photo}
+        onRetake={() => setPhoto(null)}
+        onConfirm={() => onCapture(photo)}
+      />
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col">
-      <video ref={videoRef} autoPlay playsInline muted className="flex-1 w-full h-full object-cover" />
-      <div className="absolute top-0 left-0 right-0 flex justify-between p-4">
-        <button onClick={onCancel} className="p-2.5 rounded-full bg-black/50 text-white">
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        className="flex-1 w-full h-full object-cover"
+      />
+
+      {/* Food framing guide */}
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+        <div className="w-[82%] max-w-md aspect-[4/3] border-2 border-white/60 rounded-3xl" />
+      </div>
+
+      {/* Top controls */}
+      <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4">
+        <button
+          onClick={onCancel}
+          className="p-2.5 rounded-full bg-black/50 text-white"
+          aria-label="Close camera"
+        >
           <X size={20} />
         </button>
-        <button onClick={() => setFacing((f) => (f === 'environment' ? 'user' : 'environment'))} className="p-2.5 rounded-full bg-black/50 text-white">
-          <RotateCcw size={20} />
-        </button>
+
+        <div className="flex items-center gap-2">
+          {resolution && (
+            <div className="px-3 py-1.5 rounded-full bg-black/50 text-white text-[11px]">
+              {resolution}
+            </div>
+          )}
+
+          <button
+            onClick={switchCamera}
+            className="p-2.5 rounded-full bg-black/50 text-white"
+            aria-label="Switch camera"
+          >
+            <RotateCcw size={20} />
+          </button>
+        </div>
       </div>
+
+      {!cameraReady && (
+        <div className="absolute top-20 left-0 right-0 flex justify-center">
+          <div className="px-3 py-1.5 rounded-full bg-black/60 text-white text-xs">
+            Starting camera…
+          </div>
+        </div>
+      )}
+
+      {/* Bottom controls */}
       <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-8 pb-10 pt-6 bg-gradient-to-t from-black/70 to-transparent">
         <label className="p-3 rounded-full bg-white/20 text-white cursor-pointer">
           <Upload size={20} />
-          <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={handleUpload}
+          />
         </label>
-        <button onClick={capture} className="w-16 h-16 rounded-full bg-white ring-4 ring-white/30 active:scale-95 transition-transform" />
+
+        <button
+          onClick={capture}
+          disabled={!cameraReady}
+          aria-label="Take photo"
+          className={`w-16 h-16 rounded-full bg-white ring-4 ring-white/30 active:scale-95 transition-transform ${
+            cameraReady
+              ? 'opacity-100'
+              : 'opacity-40 cursor-not-allowed'
+          }`}
+        />
+
         <div className="w-11" />
       </div>
     </div>
