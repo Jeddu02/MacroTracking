@@ -60,7 +60,7 @@ export default function Home() {
   const targets = profile.targets || { calories: 2000, protein: 150, carbs: 200, fat: 65 };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex flex-col gap-5">
+    <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex flex-col gap-5 mf-stagger">
       <header className="flex items-center justify-between">
         <div>
           <p className="text-sm text-ink/50 dark:text-paper/50">
@@ -70,20 +70,20 @@ export default function Home() {
         </div>
       </header>
 
-      <section>
+      <section className="mf-hover-lift">
         <h2 className="text-sm font-semibold text-ink/60 dark:text-paper/60 mb-2">Today's nutrition</h2>
         <MacroSummary totals={totals} targets={targets} />
       </section>
 
-      <section className="grid grid-cols-4 gap-2">
+      <section className="grid grid-cols-4 gap-2 mf-interactive">
         <QuickAction icon={Camera} label="Scan Food" accent onClick={() => navigate('/food?action=scan')} />
         <QuickAction icon={Plus} label="Add Food" onClick={() => navigate('/food?action=add')} />
         <QuickAction icon={Dumbbell} label="Workout" onClick={() => navigate('/workout')} />
         <QuickAction icon={Scale} label="Log Weight" onClick={() => navigate('/progress?action=weight')} />
       </section>
 
-      <section className="grid grid-cols-2 gap-3">
-        <div className="card p-4">
+<section className="grid grid-cols-2 gap-3 mf-hover-lift">
+        <div className="card p-4 mf-interactive">
           <p className="text-xs text-ink/50 dark:text-paper/50 mb-1">Today's workout</p>
           {todayWorkout ? (
             <>
@@ -101,7 +101,7 @@ export default function Home() {
             </>
           )}
         </div>
-        <div className="card p-4">
+        <div className="card p-4 mf-interactive">
           <p className="text-xs text-ink/50 dark:text-paper/50 mb-1">Body weight</p>
           {weightInfo ? (
             <>
@@ -120,7 +120,7 @@ export default function Home() {
       </section>
 
       {water && (
-        <section className="card p-4 flex items-center justify-between">
+        <section className="card p-4 flex items-center justify-between mf-interactive">
           <div>
             <p className="text-xs text-ink/50 dark:text-paper/50 mb-1">Water</p>
             <p className="font-display font-semibold">
