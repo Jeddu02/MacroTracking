@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Home as HomeIcon, UtensilsCrossed, Dumbbell, TrendingUp, User, Camera, Pause, Play, X } from 'lucide-react';
 import { useRestTimer } from '../context/TimerContext.jsx';
 
@@ -77,7 +77,7 @@ function FloatingTimer() {
 
 export default function AppLayout() {
   const navigate = useNavigate();
-
+  const location = useLocation();
   return (
     <div className="min-h-screen flex bg-paper dark:bg-ink">
       {/* Desktop sidebar */}
@@ -97,9 +97,11 @@ export default function AppLayout() {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <main className="flex-1 pb-24 md:pb-8 overflow-y-auto">
-          <Outlet />
-        </main>
+  <main className="flex-1 pb-24 md:pb-8 overflow-y-auto">
+    <div key={location.pathname} className="mf-page min-h-full">
+      <Outlet />
+    </div>
+  </main>
 
         {/* Mobile bottom nav */}
         <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur border-t border-edge-light dark:border-edge-dark flex px-1 pt-1 pb-[env(safe-area-inset-bottom)]">
