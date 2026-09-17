@@ -2,33 +2,73 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>MacroFit</title>
-    <meta name="description" content="Track macros, workouts and progress — on your terms." />
 
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+
+    <title>MacroFit</title>
+
+    <meta
+      name="description"
+      content="Track macros, workouts and progress — on your terms."
+    />
+
+    <link
+      rel="manifest"
+      href="/MacroTracking/manifest.webmanifest"
+    />
+
     <meta name="theme-color" content="#132140" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="MacroFit" />
+
+    <link
+      rel="apple-touch-icon"
+      href="/MacroTracking/icons/icon-192.png"
+    />
+
+    <meta
+      name="apple-mobile-web-app-capable"
+      content="yes"
+    />
+
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+
+    <meta
+      name="apple-mobile-web-app-title"
+      content="MacroFit"
+    />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+
     <link
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
   </head>
+
   <body class="font-body bg-paper dark:bg-ink text-ink dark:text-paper transition-colors">
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+
+    <script type="module" src="/MacroTracking/src/main.jsx"></script>
+
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {
-            /* offline-first still works without a controlling SW */
-          });
+          navigator.serviceWorker
+            .register('/MacroTracking/sw.js')
+            .catch(() => {
+              /* offline-first still works without a controlling SW */
+            });
         });
       }
     </script>
