@@ -321,7 +321,6 @@ export function CameraCapture({ onCapture, onCancel }) {
         </label>
 
         <button
-          <button
   type="button"
   onClick={capture}
           disabled={!cameraReady}
