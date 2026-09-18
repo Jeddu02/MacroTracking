@@ -229,17 +229,17 @@ export function CameraCapture({ onCapture, onCancel }) {
           Upload Photo Instead
 
           <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={handleUpload}
-          />
+  type="file"
+  accept="image/*"
+  capture="environment"
+  className="hidden"
+  onChange={handleUpload}
+/>
         </label>
 
-        <button
-          onClick={onCancel}
-          className="text-sm opacity-60 mt-2"
+       <button
+  type="button"
+  onClick={onCancel}
         >
           Cancel
         </button>
@@ -289,10 +289,9 @@ export function CameraCapture({ onCapture, onCancel }) {
             </div>
           )}
 
-          <button
-            onClick={switchCamera}
-            className="p-2.5 rounded-full bg-black/50 text-white"
-            aria-label="Switch camera"
+         <button
+  type="button"
+  onClick={switchCamera}
           >
             <RotateCcw size={20} />
           </button>
@@ -322,7 +321,9 @@ export function CameraCapture({ onCapture, onCancel }) {
         </label>
 
         <button
-          onClick={capture}
+          <button
+  type="button"
+  onClick={capture}
           disabled={!cameraReady}
           aria-label="Take photo"
           className={`w-16 h-16 rounded-full bg-white ring-4 ring-white/30 active:scale-95 transition-transform mf-pop mf-interactive ${
@@ -341,12 +342,26 @@ export function CameraCapture({ onCapture, onCancel }) {
 function ConfirmPhoto({ photo, onRetake, onConfirm }) {
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col">
-      <img src={photo} alt="Captured food" className="flex-1 w-full h-full object-cover mf-fade-in" />
+      <img
+        src={photo}
+        alt="Captured food"
+        className="flex-1 w-full h-full object-cover mf-fade-in"
+      />
+
       <div className="flex gap-3 p-5 bg-black">
-        <button onClick={onRetake} className="flex-1 py-3 rounded-xl border border-white/30 text-white font-medium">
+        <button
+          type="button"
+          onClick={onRetake}
+          className="flex-1 py-3 rounded-xl border border-white/30 text-white font-medium"
+        >
           Retake
         </button>
-        <button onClick={onConfirm} className="flex-1 py-3 rounded-xl bg-volt text-navy font-semibold">
+
+        <button
+          type="button"
+          onClick={onConfirm}
+          className="flex-1 py-3 rounded-xl bg-volt text-navy font-semibold"
+        >
           Use Photo
         </button>
       </div>
