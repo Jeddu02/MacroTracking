@@ -258,7 +258,7 @@ export function CameraCapture({ onCapture, onCancel }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col">
+    <div className="fixed inset-0 z-50 bg-black flex flex-col mf-scale-in">
       <video
         ref={videoRef}
         autoPlay
@@ -273,7 +273,7 @@ export function CameraCapture({ onCapture, onCancel }) {
       </div>
 
       {/* Top controls */}
-      <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4">
+      <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 mf-slide-down">
         <button
           onClick={onCancel}
           className="p-2.5 rounded-full bg-black/50 text-white"
@@ -325,7 +325,7 @@ export function CameraCapture({ onCapture, onCancel }) {
           onClick={capture}
           disabled={!cameraReady}
           aria-label="Take photo"
-          className={`w-16 h-16 rounded-full bg-white ring-4 ring-white/30 active:scale-95 transition-transform ${
+          className={`w-16 h-16 rounded-full bg-white ring-4 ring-white/30 active:scale-95 transition-transform mf-pop mf-interactive ${
             cameraReady
               ? 'opacity-100'
               : 'opacity-40 cursor-not-allowed'
@@ -341,7 +341,7 @@ export function CameraCapture({ onCapture, onCancel }) {
 function ConfirmPhoto({ photo, onRetake, onConfirm }) {
   return (
     <div className="fixed inset-0 z-50 bg-black flex flex-col">
-      <img src={photo} alt="Captured food" className="flex-1 w-full h-full object-cover" />
+      <img src={photo} alt="Captured food" className="flex-1 w-full h-full object-cover mf-fade-in" />
       <div className="flex gap-3 p-5 bg-black">
         <button onClick={onRetake} className="flex-1 py-3 rounded-xl border border-white/30 text-white font-medium">
           Retake
