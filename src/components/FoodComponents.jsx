@@ -550,8 +550,8 @@ export function AddFoodModal({ meal, foodOptions, onClose, onAdd }) {
 
   if (custom) {
     return (
-      <div className="fixed inset-0 z-50 bg-black/40 flex items-end md:items-center justify-center">
-        <div className="bg-surface-light dark:bg-surface-dark rounded-t-2xl md:rounded-2xl w-full md:max-w-md p-5 flex flex-col gap-3 max-h-[85vh] overflow-y-auto">
+     <div className="fixed inset-0 z-50 bg-black/40 flex items-end md:items-center justify-center mf-fade-in">
+        <div className="bg-surface-light dark:bg-surface-dark rounded-t-2xl md:rounded-2xl w-full md:max-w-md p-5 flex flex-col gap-3 max-h-[85vh] overflow-y-auto mf-slide-up">
           <h3 className="font-display font-semibold">Custom food</h3>
           {['name', 'serving', 'unit', 'calories', 'protein', 'carbs', 'fat', 'fiber'].map((key) => (
             <label key={key} className="flex flex-col gap-1 text-sm">
@@ -589,8 +589,8 @@ export function AddFoodModal({ meal, foodOptions, onClose, onAdd }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-end md:items-center justify-center">
-      <div className="bg-surface-light dark:bg-surface-dark rounded-t-2xl md:rounded-2xl w-full md:max-w-md p-5 flex flex-col gap-3 max-h-[85vh]">
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-end md:items-center justify-center mf-fade-in">
+      <div className="bg-surface-light dark:bg-surface-dark rounded-t-2xl md:rounded-2xl w-full md:max-w-md p-5 flex flex-col gap-3 max-h-[85vh] mf-slide-up">
         <div className="flex items-center justify-between">
           <h3 className="font-display font-semibold">Add to {MEAL_LABELS[meal]}</h3>
           <button onClick={onClose}><X size={18} /></button>
@@ -602,7 +602,7 @@ export function AddFoodModal({ meal, foodOptions, onClose, onAdd }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <div className="flex-1 overflow-y-auto flex flex-col gap-1 -mx-1 px-1">
+        <div className="flex-1 overflow-y-auto flex flex-col gap-1 -mx-1 px-1 mf-stagger">
           {filtered.map((f, i) => (
             <button
               key={i}
@@ -621,7 +621,7 @@ export function AddFoodModal({ meal, foodOptions, onClose, onAdd }) {
         </div>
         <button
           onClick={() => setCustom({ name: query || '', serving: 100, unit: 'g', calories: '', protein: '', carbs: '', fat: '', fiber: '' })}
-          className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-edge-light dark:border-edge-dark text-sm"
+         className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-edge-light dark:border-edge-dark text-sm mf-interactive"
         >
           <Plus size={15} /> Create custom food
         </button>
