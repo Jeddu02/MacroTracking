@@ -219,7 +219,7 @@ async function saveSleep({ totalHours, quality }) {
   setShowSleepForm(false);
   loadAll();
 }
-  }
+  
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex flex-col gap-5 mf-stagger">
