@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Camera, RotateCcw, Check, X, Plus, Trash2, Upload, ChevronRight } from 'lucide-react';
+import { Camera, RotateCcw, Check, X, Plus, Trash2, Upload, ChevronRight, ScanBarcode } from 'lucide-react';
 import { analyzeFoodPhoto } from '../services/foodAnalysisService.js';
 import { MEAL_LABELS } from '../utils/macros.js';
+import { Html5Qrcode } from 'html5-qrcode';
 
 // ---------------------------------------------------------------------------
 // Camera capture
@@ -334,6 +335,196 @@ export function CameraCapture({ onCapture, onCancel }) {
 
         <div className="w-11" />
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Barcode scanner
+// ---------------------------------------------------------------------------
+export function BarcodeScanner({ onResult, onCancel }) {
+  const scannerRef = useRef(null);
+  const startedRef = useRef(false);
+
+  const [error, setError] = useState(null);
+  const [scanning, setScanning] = useState(true);
+  const [manualCode, setManualCode] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function startScanner() {
+      try {
+        const scanner = new Html5Qrcode('barcode-reader');
+
+        scannerRef.current = scanner;
+
+        await scanner.start(
+          { facingMode: 'environment' },
+          {
+            fps: 10,
+            qrbox: {
+              width: 280,
+              height: 140
+            },
+            aspectRatio: 1.777778
+          },
+          async (decodedText) => {
+            if (!mounted || startedRef.current) return;
+
+            startedRef.current = true;
+            setScanning(false);
+
+            try {
+              await scanner.stop();
+            } catch {
+              // Scanner may already have stopped.
+            }
+
+            onResult(decodedText);
+          },
+          () => {
+            // Ignore normal scan misses.
+          }
+        );
+      } catch (err) {
+        console.error('Barcode scanner error:', err);
+
+        if (mounted) {
+          setError(
+            err?.message ||
+            'Unable to access the camera for barcode scanning.'
+          );
+        }
+      }
+    }
+
+    startScanner();
+
+    return () => {
+      mounted = false;
+
+      const scanner = scannerRef.current;
+
+      if (scanner) {
+        scanner
+          .stop()
+          .catch(() => {})
+          .finally(() => {
+            scanner.clear().catch(() => {});
+          });
+      }
+    };
+  }, [onResult]);
+
+  function submitManualCode(e) {
+    e.preventDefault();
+
+    const code = manualCode.trim();
+
+    if (!code) return;
+
+    startedRef.current = true;
+    setScanning(false);
+    onResult(code);
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black flex flex-col text-white mf-scale-in">
+      <header className="flex items-center justify-between p-4">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="p-2.5 rounded-full bg-white/10"
+          aria-label="Close barcode scanner"
+        >
+          <X size={20} />
+        </button>
+
+        <div className="flex items-center gap-2">
+          <ScanBarcode size={20} />
+          <span className="font-semibold">Scan Barcode</span>
+        </div>
+
+        <div className="w-10" />
+      </header>
+
+      <div className="flex-1 flex flex-col items-center justify-center px-5">
+        {!error && scanning && (
+          <>
+            <div
+              id="barcode-reader"
+              className="w-full max-w-md overflow-hidden rounded-2xl"
+            />
+
+            <div className="mt-5 text-center">
+              <p className="font-semibold">
+                Point your camera at a barcode
+              </p>
+
+              <p className="text-xs text-white/60 mt-2 max-w-xs">
+                Keep the barcode inside the scanning area until it is
+                detected.
+              </p>
+            </div>
+          </>
+        )}
+
+        {error && (
+          <div className="w-full max-w-md text-center">
+            <ScanBarcode
+              size={42}
+              className="mx-auto mb-4 opacity-60"
+            />
+
+            <p className="font-semibold">
+              Barcode camera unavailable
+            </p>
+
+            <p className="text-xs text-white/60 mt-2 mb-5">
+              You can enter the barcode number manually instead.
+            </p>
+          </div>
+        )}
+
+        <form
+          onSubmit={submitManualCode}
+          className="w-full max-w-md mt-8"
+        >
+          <label className="text-xs text-white/50">
+            Enter barcode manually
+          </label>
+
+          <div className="flex gap-2 mt-2">
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="e.g. 4800012345678"
+              value={manualCode}
+              onChange={(e) => setManualCode(e.target.value)}
+              className="flex-1 rounded-xl bg-white/10 border border-white/20 px-3 py-3 text-white outline-none"
+            />
+
+            <button
+              type="submit"
+              disabled={!manualCode.trim()}
+              className="px-4 rounded-xl bg-volt text-navy font-semibold disabled:opacity-40"
+            >
+              Search
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <footer className="p-5">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="w-full py-3 rounded-xl border border-white/20 text-white/80"
+        >
+          Cancel
+        </button>
+      </footer>
     </div>
   );
 }

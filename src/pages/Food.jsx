@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { db } from '../db/database.js';
+import { ScanBarcode } from 'lucide-react';
 import { useApp } from '../context/AppContext.jsx';
 import { MacroSummary } from '../components/MacroCard.jsx';
 import {
   CameraCapture,
+  BarcodeScanner,
   AnalyzingScreen,
   FoodResultReview,
   MealSection,
@@ -12,6 +13,7 @@ import {
   analyzeFoodPhoto
 } from '../components/FoodComponents.jsx';
 import { sumMacros, MEAL_ORDER } from '../utils/macros.js';
+import { lookupBarcode } from '../services/foodAnalysisService.js';
 import { todayISO } from '../utils/date.js';
 
 export default function Food() {
@@ -19,7 +21,7 @@ export default function Food() {
   const [params, setParams] = useSearchParams();
   const [logs, setLogs] = useState([]);
   const [foodOptions, setFoodOptions] = useState([]);
-  const [flow, setFlow] = useState(null); // 'camera' | 'analyzing' | 'review'
+  const [flow, setFlow] = useState(null); // 'camera' | 'barcode' | 'analyzing' | 'review'
   const [pendingFoods, setPendingFoods] = useState([]);
   const [targetMeal, setTargetMeal] = useState('breakfast');
   const [addModalMeal, setAddModalMeal] = useState(null);
@@ -63,6 +65,32 @@ export default function Food() {
   } catch (error) {
     console.error('Food scan failed:', error);
     alert(error?.message || 'Food scan failed. Please try again.');
+    setFlow(null);
+  }
+}
+
+async function handleBarcode(code) {
+  setFlow('analyzing');
+
+  try {
+    const food = await lookupBarcode(code);
+
+    if (!food) {
+      throw new Error(
+        'No food was found for this barcode.'
+      );
+    }
+
+    setPendingFoods([food]);
+    setFlow('review');
+  } catch (error) {
+    console.error('Barcode lookup failed:', error);
+
+    alert(
+      error?.message ||
+      'Barcode lookup failed. Please try again.'
+    );
+
     setFlow(null);
   }
 }
@@ -118,15 +146,29 @@ export default function Food() {
     <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex flex-col gap-5 mf-stagger">
       <header className="flex items-center justify-between mf-interactive">
         <h1 className="font-display text-2xl font-semibold">Food</h1>
-        <button
-          onClick={() => {
-            setTargetMeal('breakfast');
-            setFlow('camera');
-          }}
-          className="text-xs font-semibold bg-navy dark:bg-volt text-volt dark:text-navy rounded-full px-4 py-2 mf-interactive" 
-          >
-          Scan Food
-        </button>
+
+        <div className="flex items-center gap-2">
+  <button
+    onClick={() => {
+      setTargetMeal('breakfast');
+      setFlow('barcode');
+    }}
+    className="text-xs font-semibold border border-edge-light dark:border-edge-dark rounded-full px-4 py-2 mf-interactive flex items-center gap-1.5"
+  >
+    <ScanBarcode size={14} />
+    Barcode
+  </button>
+
+  <button
+    onClick={() => {
+      setTargetMeal('breakfast');
+      setFlow('camera');
+    }}
+    className="text-xs font-semibold bg-navy dark:bg-volt text-volt dark:text-navy rounded-full px-4 py-2 mf-interactive"
+  >
+    Scan Food
+  </button>
+</div>
       </header>
 
       <div className="mf-hover-lift">
@@ -144,7 +186,12 @@ export default function Food() {
           />
         ))}
       </div>
-
+{flow === 'barcode' && (
+  <BarcodeScanner
+    onCancel={() => setFlow(null)}
+    onResult={handleBarcode}
+  />
+)}
       {flow === 'camera' && (
         <CameraCapture
           onCancel={() => setFlow(null)}
