@@ -49,15 +49,23 @@ export default function Food() {
   const targets = profile?.targets || { calories: 2000, protein: 150, carbs: 200, fat: 65 };
 
   async function handleCapture(photoDataUrl) {
-    setFlow('analyzing');
-    try {
-      const result = await analyzeFoodPhoto(photoDataUrl);
-      setPendingFoods(result.foods);
-      setFlow('review');
-    } catch {
-      setFlow(null);
+  setFlow('analyzing');
+
+  try {
+    const result = await analyzeFoodPhoto(photoDataUrl);
+
+    if (!result?.foods?.length) {
+      throw new Error('No food was detected in the photo.');
     }
+
+    setPendingFoods(result.foods);
+    setFlow('review');
+  } catch (error) {
+    console.error('Food scan failed:', error);
+    alert(error?.message || 'Food scan failed. Please try again.');
+    setFlow(null);
   }
+}
 
   async function confirmLog(foods) {
     const today = todayISO();

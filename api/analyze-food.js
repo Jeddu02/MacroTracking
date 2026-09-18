@@ -15,14 +15,19 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { image } = req.body || {};
-const imageBase64 = image?.includes(',')
-  ? image.split(',')[1]
-  : image;
-  if (!imageBase64) {
-  res.status(400).json({ error: 'image is required' });
+  const { imageBase64 } = req.body || {};
+
+if (!imageBase64) {
+  res.status(400).json({ error: 'imageBase64 is required' });
   return;
 }
+
+const match = imageBase64.match(
+  /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/
+);
+
+const mediaType = match?.[1] || 'image/jpeg';
+const imageData = match?.[2] || imageBase64;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -50,7 +55,14 @@ estimate its serving size and macros. Respond with ONLY valid JSON, no prose, ma
           {
             role: 'user',
             content: [
-              { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imageBase64 } },
+              {
+  type: 'image',
+  source: {
+    type: 'base64',
+    media_type: mediaType,
+    data: imageData
+  }
+},
               { type: 'text', text: prompt }
             ]
           }

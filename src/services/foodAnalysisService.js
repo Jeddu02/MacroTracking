@@ -96,8 +96,8 @@ export async function analyzeFoodPhoto(photo, opts = {}) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      image
-    }),
+  imageBase64: image
+}),
     signal: opts.signal
   });
 
