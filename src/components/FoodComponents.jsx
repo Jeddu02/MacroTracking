@@ -458,13 +458,13 @@ export function FoodResultReview({ initialFoods, meal, onConfirm, onCancel, onSc
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-paper dark:bg-ink flex flex-col">
-      <header className="flex items-center justify-between p-4 border-b border-edge-light dark:border-edge-dark">
+    <div className="fixed inset-0 z-50 bg-paper dark:bg-ink flex flex-col mf-page">
+      <header className="flex items-center justify-between p-4 border-b border-edge-light dark:border-edge-dark mf-slide-down">
         <button onClick={onCancel} className="text-sm text-ink/50 dark:text-paper/50">Cancel</button>
         <span className="font-display font-semibold">Review & confirm</span>
         <span className="w-12" />
       </header>
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 mf-stagger">
         <p className="text-xs text-ink/50 dark:text-paper/50 -mt-1">
           Logging to <strong>{MEAL_LABELS[meal]}</strong>. Nothing is saved until you confirm — edit anything that looks off.
         </p>
@@ -473,7 +473,7 @@ export function FoodResultReview({ initialFoods, meal, onConfirm, onCancel, onSc
           <Plus size={16} /> Add Food
         </button>
       </div>
-      <footer className="p-4 border-t border-edge-light dark:border-edge-dark flex flex-col gap-3">
+     <footer className="p-4 border-t border-edge-light dark:border-edge-dark flex flex-col gap-3 mf-slide-up">
         <div className="flex justify-between text-sm font-medium">
           <span>Total</span>
           <span className="tabular-nums">
@@ -488,7 +488,7 @@ export function FoodResultReview({ initialFoods, meal, onConfirm, onCancel, onSc
           )}
           <button
             onClick={() => onConfirm(foods)}
-            className="flex-[2] py-3 rounded-xl bg-navy dark:bg-volt text-volt dark:text-navy font-semibold flex items-center justify-center gap-2"
+           className="flex-[2] py-3 rounded-xl bg-navy dark:bg-volt text-volt dark:text-navy font-semibold flex items-center justify-center gap-2 mf-interactive mf-pop"
           >
             <Check size={18} /> Confirm & Log
           </button>
