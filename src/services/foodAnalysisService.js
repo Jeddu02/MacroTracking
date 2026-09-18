@@ -1,97 +1,162 @@
-// foodAnalysisService
+// foodAnalysisService.js
 // ---------------------------------------------------------------------------
-// This is the ONE place the app calls out for AI food recognition. Swap the
-// body of `analyzeFoodPhoto` to call a real backend and nothing else in the
-// app needs to change — every caller already treats the result as an
-// unconfirmed estimate (see FoodResult component) and never auto-saves it.
+// Food image analysis service.
 //
-// Response shape (matches spec section 33):
-// {
-//   foods: [{ name, serving, unit, calories, protein, carbs, fat, fiber, confidence }],
-//   source: 'mock' | 'api',
-// }
-//
-// To connect a real model:
-//   1. Stand up a backend/serverless endpoint (see /server/analyze-food.js for
-//      an example using the Anthropic API) that holds the API key server-side.
-//      NEVER call a vision API directly from the browser with an embedded key.
-//   2. Replace the body of analyzeFoodPhoto() below with a fetch() to that
-//      endpoint, sending the photo as base64 or multipart form data.
-//   3. Parse the endpoint's JSON into the same { foods: [...] } shape so the
-//      rest of the app (FoodResult, Food page) needs no changes.
+// IMPORTANT:
+// - No API key belongs in this browser-side file.
+// - The browser sends the image to your backend endpoint.
+// - The backend is responsible for calling the vision model.
+// - The rest of the app receives the same { foods, source } shape.
 // ---------------------------------------------------------------------------
 
-const MOCK_LIBRARY = [
-  {
-    name: 'Grilled Chicken Breast',
-    serving: 150,
-    unit: 'g',
-    calories: 248,
-    protein: 46,
-    carbs: 0,
-    fat: 6,
-    fiber: 0,
-    confidence: 0.86
-  },
-  {
-    name: 'White Rice',
-    serving: 180,
-    unit: 'g',
-    calories: 234,
-    protein: 4,
-    carbs: 51,
-    fat: 0.5,
-    fiber: 1,
-    confidence: 0.9
-  },
-  {
-    name: 'Mixed Vegetables',
-    serving: 100,
-    unit: 'g',
-    calories: 45,
-    protein: 2,
-    carbs: 9,
-    fat: 0,
-    fiber: 3,
-    confidence: 0.72
+const ANALYZE_ENDPOINT = '/api/analyze-food';
+
+/**
+ * Convert a Blob/File/data URL into a base64 payload that can be sent
+ * to the backend.
+ */
+async function photoToBase64(photo) {
+  if (!photo) {
+    throw new Error('No food photo was provided.');
   }
-];
 
-function jitter(value, pct = 0.08) {
-  const delta = value * pct * (Math.random() * 2 - 1);
-  return Math.max(0, Math.round((value + delta) * 10) / 10);
+  // Already a data URL.
+  if (typeof photo === 'string') {
+    if (photo.startsWith('data:')) {
+      return photo;
+    }
+
+    // If it is a normal URL, download it first.
+    const response = await fetch(photo);
+
+    if (!response.ok) {
+      throw new Error('Unable to read the selected food photo.');
+    }
+
+    const blob = await response.blob();
+    return blobToDataUrl(blob);
+  }
+
+  // Blob / File from camera or file picker.
+  if (photo instanceof Blob) {
+    return blobToDataUrl(photo);
+  }
+
+  throw new Error('Unsupported photo format.');
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(reader.result);
+
+    reader.onerror = () => {
+      reject(new Error('Unable to read the food photo.'));
+    };
+
+    reader.readAsDataURL(blob);
+  });
 }
 
 /**
- * @param {Blob|string} _photo - captured/selected image (unused by the mock)
- * @param {{ signal?: AbortSignal }} [_opts]
- * @returns {Promise<{ foods: Array<object>, source: string }>}
+ * Normalize the response from the backend so FoodComponents always receives
+ * the exact shape it expects.
  */
-export async function analyzeFoodPhoto(_photo, _opts = {}) {
-  // Simulate network + inference latency so the "Analyzing food..." state is real.
-  await new Promise((resolve) => setTimeout(resolve, 1400 + Math.random() * 700));
-
-  // Return a plausible 2-3 item plate rather than the same three foods every
-  // time, so the mock doesn't feel canned.
-  const count = 2 + Math.round(Math.random());
-  const picks = [...MOCK_LIBRARY].sort(() => Math.random() - 0.5).slice(0, count);
-
+function normalizeFood(food) {
   return {
-    source: 'mock',
-    foods: picks.map((item) => ({
-      ...item,
-      serving: jitter(item.serving, 0.15),
-      calories: jitter(item.calories),
-      protein: jitter(item.protein),
-      carbs: jitter(item.carbs),
-      fat: jitter(item.fat),
-      fiber: jitter(item.fiber, 0.2)
-    }))
+    name: String(food?.name || 'Unknown food'),
+    serving: Number(food?.serving) || 0,
+    unit: String(food?.unit || 'g'),
+    calories: Number(food?.calories) || 0,
+    protein: Number(food?.protein) || 0,
+    carbs: Number(food?.carbs) || 0,
+    fat: Number(food?.fat) || 0,
+    fiber: Number(food?.fiber) || 0,
+    confidence: Math.min(
+      1,
+      Math.max(0, Number(food?.confidence) || 0)
+    )
   };
 }
 
-/** Barcode lookup — same "never trust silently" pattern as photo analysis. */
-export async function lookupBarcode(_code) {
-  await new Promise((resolve) => setTimeout(resolve, 600));
-  return null; // not found in the demo; UI falls back to manual entry
+/**
+ * Analyze a food photo.
+ *
+ * @param {Blob|string} photo
+ * @param {{ signal?: AbortSignal }} [opts]
+ * @returns {Promise<{foods: Array<object>, source: string}>}
+ */
+export async function analyzeFoodPhoto(photo, opts = {}) {
+  const image = await photoToBase64(photo);
+
+  const response = await fetch(ANALYZE_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      image
+    }),
+    signal: opts.signal
+  });
+
+  let data = null;
+
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error('The food analysis server returned an invalid response.');
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      data?.error ||
+      `Food analysis failed (${response.status}).`
+    );
+  }
+
+  if (!Array.isArray(data?.foods)) {
+    throw new Error('Food analysis returned no usable food results.');
+  }
+
+  return {
+    source: data.source || 'api',
+    foods: data.foods.map(normalizeFood)
+  };
+}
+
+/**
+ * Barcode lookup.
+ *
+ * Kept separate from photo recognition so the Food page can later support
+ * barcode/database lookup without changing its UI architecture.
+ */
+export async function lookupBarcode(code, opts = {}) {
+  if (!code) {
+    return null;
+  }
+
+  const response = await fetch('/api/lookup-barcode', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      code: String(code).trim()
+    }),
+    signal: opts.signal
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const data = await response.json();
+
+  if (!data?.food) {
+    return null;
+  }
+
+  return normalizeFood(data.food);
 }
