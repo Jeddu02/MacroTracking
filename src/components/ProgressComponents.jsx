@@ -328,7 +328,23 @@ export function BodyFatEstimator({ profile, photos }) {
 // Water / habits / sleep — lightweight daily trackers
 // ---------------------------------------------------------------------------
 export function WaterTracker({ water, onAdd, onSetTarget }) {
-  const pct = Math.min((water.amountMl / water.targetMl) * 100, 100);
+  const [editingTarget, setEditingTarget] = useState(false);
+  const [target, setTarget] = useState(String(water.targetMl || 2500));
+
+  const pct = Math.min(
+    ((water.amountMl || 0) / (water.targetMl || 2500)) * 100,
+    100
+  );
+
+  function saveTarget() {
+    const value = Number(target);
+
+    if (!value || value < 500) return;
+
+    onSetTarget?.(value);
+    setEditingTarget(false);
+  }
+
   return (
     <div className="card p-4">
       <div className="flex items-center justify-between mb-2">
@@ -336,14 +352,59 @@ export function WaterTracker({ water, onAdd, onSetTarget }) {
           <Droplets size={16} className="text-protein" />
           <p className="font-medium text-sm">Water</p>
         </div>
-        <span className="text-xs text-ink/40 dark:text-paper/40 tabular-nums">{water.amountMl} / {water.targetMl} mL</span>
+
+        <button
+          type="button"
+          onClick={() => {
+            setTarget(String(water.targetMl || 2500));
+            setEditingTarget(true);
+          }}
+          className="text-xs text-ink/40 dark:text-paper/40 tabular-nums"
+        >
+          {water.amountMl || 0} / {water.targetMl || 2500} mL
+        </button>
       </div>
+
       <div className="h-2 rounded-full bg-ink/10 dark:bg-paper/10 overflow-hidden mb-3">
-        <div className="h-full bg-protein rounded-full" style={{ width: `${pct}%`, transition: 'width 0.3s' }} />
+        <div
+          className="h-full bg-protein rounded-full"
+          style={{
+            width: `${pct}%`,
+            transition: 'width 0.3s'
+          }}
+        />
       </div>
+
+      {editingTarget && (
+        <div className="flex gap-2 mb-3">
+          <input
+            type="number"
+            min="500"
+            step="100"
+            value={target}
+            onChange={(e) => setTarget(e.target.value)}
+            className={`${inputCls} flex-1`}
+            placeholder="Daily target (mL)"
+          />
+
+          <button
+            type="button"
+            onClick={saveTarget}
+            className="px-4 rounded-xl bg-navy dark:bg-volt text-volt dark:text-navy text-xs font-semibold"
+          >
+            Save
+          </button>
+        </div>
+      )}
+
       <div className="flex gap-2">
         {[250, 500, 750].map((ml) => (
-          <button key={ml} onClick={() => onAdd(ml)} className="flex-1 py-1.5 rounded-lg text-xs font-medium border border-edge-light dark:border-edge-dark">
+          <button
+            key={ml}
+            type="button"
+            onClick={() => onAdd(ml)}
+            className="flex-1 py-1.5 rounded-lg text-xs font-medium border border-edge-light dark:border-edge-dark"
+          >
             +{ml}mL
           </button>
         ))}
