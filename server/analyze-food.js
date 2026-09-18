@@ -15,11 +15,14 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { imageBase64 } = req.body || {};
+  const { image } = req.body || {};
+const imageBase64 = image?.includes(',')
+  ? image.split(',')[1]
+  : image;
   if (!imageBase64) {
-    res.status(400).json({ error: 'imageBase64 is required' });
-    return;
-  }
+  res.status(400).json({ error: 'image is required' });
+  return;
+}
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
