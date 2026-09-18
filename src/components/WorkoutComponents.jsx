@@ -326,12 +326,12 @@ export function ExerciseSession({ exercise, lastPerformance, onComplete, onSkip 
 export function WorkoutHistoryList({ workouts, onOpen }) {
   if (!workouts.length) return <p className="text-sm text-ink/40 dark:text-paper/40">No workouts logged yet.</p>;
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 mf-stagger">
       {workouts.map((w) => {
         const totalSets = w.exercises?.reduce((a, e) => a + e.sets.length, 0) || 0;
         const volume = w.exercises?.reduce((a, e) => a + e.sets.reduce((s, set) => s + set.weight * set.reps, 0), 0) || 0;
         return (
-          <button key={w.id} onClick={() => onOpen(w)} className="card p-4 text-left flex items-center justify-between">
+          <button key={w.id} onClick={() => onOpen(w)} className="card p-4 text-left flex items-center justify-between mf-hover-lift mf-interactive">
             <div>
               <p className="font-medium text-sm">{w.dayLabel}</p>
               <p className="text-xs text-ink/40 dark:text-paper/40">{formatShortDate(w.date)} · {totalSets} sets · {Math.round(volume)}kg volume</p>
@@ -347,9 +347,9 @@ export function WorkoutHistoryList({ workouts, onOpen }) {
 export function PRList({ records }) {
   if (!records.length) return <p className="text-sm text-ink/40 dark:text-paper/40">No personal records yet — they'll show up as you log workouts.</p>;
   return (
-    <div className="grid grid-cols-2 gap-2.5">
+<div className="grid grid-cols-2 gap-2.5 mf-stagger">
       {records.map((r) => (
-        <div key={r.id} className="card p-3.5">
+        <div key={r.id} className="card p-3.5 mf-hover-lift">
           <div className="flex items-center gap-1.5 text-volt mb-1">
             <Trophy size={13} />
             <span className="text-[11px] font-medium text-ink/40 dark:text-paper/40">{formatShortDate(r.date)}</span>
