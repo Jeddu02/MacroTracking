@@ -207,7 +207,17 @@ export default function Progress() {
 
       {section === 'Habits' && (
        <div className="flex flex-col gap-3 mf-stagger">
-          <WaterTracker water={water} onAdd={addWater} />
+          <WaterTracker
+  water={water}
+  onAdd={addWater}
+  onSetTarget={async (targetMl) => {
+    const saved = await db.put('waterLogs', {
+      ...water,
+      targetMl: Number(targetMl)
+    });
+    setWater(saved);
+  }}
+/>
           <HabitTracker habits={habitEntry?.habits} onToggle={toggleHabit} />
           <button onClick={() => setShowSleepForm(true)} className="flex items-center justify-center gap-2 py-3 rounded-xl border border-edge-light dark:border-edge-dark font-medium text-sm mf-interactive mf-pop">
             <Plus size={16} /> Log Sleep
