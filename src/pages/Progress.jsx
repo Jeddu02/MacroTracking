@@ -88,7 +88,66 @@ function NutritionAnalytics({ profile }) {
     </div>
   );
 }
+function SleepSummary({ logs }) {
+  const recent = [...logs]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 7);
 
+  const average = recent.length
+    ? recent.reduce((sum, log) => sum + Number(log.totalHours || 0), 0) / recent.length
+    : 0;
+
+  return (
+    <div className="card p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <p className="font-medium text-sm">Sleep</p>
+          <p className="text-xs text-ink/40 dark:text-paper/40">
+            Last {recent.length || 0} logged nights
+          </p>
+        </div>
+
+        <div className="text-right">
+          <p className="font-display text-xl font-semibold">
+            {average.toFixed(1)}h
+          </p>
+          <p className="text-xs text-ink/40 dark:text-paper/40">
+            average
+          </p>
+        </div>
+      </div>
+
+      {recent.length === 0 ? (
+        <p className="text-sm text-ink/50 dark:text-paper/50">
+          No sleep logs yet.
+        </p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {recent.map((log) => (
+            <div
+              key={log.date}
+              className="flex items-center justify-between py-2 border-b border-edge-light dark:border-edge-dark last:border-0"
+            >
+              <span className="text-sm">
+                {formatShortDate(log.date)}
+              </span>
+
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium">
+                  {Number(log.totalHours).toFixed(1)}h
+                </span>
+
+                <span className="text-xs text-ink/40 dark:text-paper/40 capitalize">
+                  {log.quality || '—'}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 export default function Progress() {
   const { profile } = useApp();
   const [params, setParams] = useSearchParams();
@@ -98,6 +157,7 @@ export default function Progress() {
   const [photos, setPhotos] = useState([]);
   const [water, setWater] = useState({ amountMl: 0, targetMl: 2500 });
   const [habitEntry, setHabitEntry] = useState(null);
+  const [sleepLogs, setSleepLogs] = useState([]);
   const [showWeightForm, setShowWeightForm] = useState(false);
   const [showMeasureForm, setShowMeasureForm] = useState(false);
   const [showPhotoForm, setShowPhotoForm] = useState(false);
@@ -112,6 +172,8 @@ export default function Progress() {
     setWater(waterToday[0] || { date: today, amountMl: 0, targetMl: 2500 });
     const habitToday = await db.getAllByIndex('habitLogs', 'date', today);
     setHabitEntry(habitToday[0] || { date: today, habits: {} });
+    const sleep = await db.getAll('sleepLogs');
+setSleepLogs(sleep);
   }, []);
 
   useEffect(() => {
@@ -152,9 +214,11 @@ export default function Progress() {
     setHabitEntry(saved);
   }
 
-  async function saveSleep({ totalHours, quality }) {
-    await db.put('sleepLogs', { date: todayISO(), totalHours, quality });
-    setShowSleepForm(false);
+async function saveSleep({ totalHours, quality }) {
+  await db.put('sleepLogs', { date: todayISO(), totalHours, quality });
+  setShowSleepForm(false);
+  loadAll();
+}
   }
 
   return (
@@ -219,6 +283,7 @@ export default function Progress() {
   }}
 />
           <HabitTracker habits={habitEntry?.habits} onToggle={toggleHabit} />
+         <SleepSummary logs={sleepLogs} />
           <button onClick={() => setShowSleepForm(true)} className="flex items-center justify-center gap-2 py-3 rounded-xl border border-edge-light dark:border-edge-dark font-medium text-sm mf-interactive mf-pop">
             <Plus size={16} /> Log Sleep
           </button>
