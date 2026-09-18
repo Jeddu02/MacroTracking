@@ -137,26 +137,78 @@ export async function lookupBarcode(code, opts = {}) {
     return null;
   }
 
-  const response = await fetch('/api/lookup-barcode', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      code: String(code).trim()
-    }),
-    signal: opts.signal
-  });
+  const barcode = String(code).trim();
 
-  if (!response.ok) {
+  try {
+    const response = await fetch(
+      `https://world.openfoodfacts.org/api/v3/product/${encodeURIComponent(barcode)}?fields=product_name,product_name_en,nutriments,serving_size,quantity,brands,code`,
+      {
+        headers: {
+          Accept: 'application/json'
+        },
+        signal: opts.signal
+      }
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+
+    if (data?.status !== 1 || !data?.product) {
+      return null;
+    }
+
+    const product = data.product;
+    const n = product.nutriments || {};
+
+    const food = {
+      name:
+        product.product_name ||
+        product.product_name_en ||
+        'Unknown food',
+
+      serving: 100,
+      unit: 'g',
+
+      calories: Number(
+        n['energy-kcal_100g'] ??
+        n['energy-kcal'] ??
+        0
+      ),
+
+      protein: Number(
+        n['proteins_100g'] ??
+        n.proteins ??
+        0
+      ),
+
+      carbs: Number(
+        n['carbohydrates_100g'] ??
+        n.carbohydrates ??
+        0
+      ),
+
+      fat: Number(
+        n['fat_100g'] ??
+        n.fat ??
+        0
+      ),
+
+      fiber: Number(
+        n['fiber_100g'] ??
+        n.fiber ??
+        0
+      )
+    };
+
+    return normalizeFood(food);
+  } catch (error) {
+    if (error?.name !== 'AbortError') {
+      console.error('Barcode lookup failed:', error);
+    }
+
     return null;
   }
-
-  const data = await response.json();
-
-  if (!data?.food) {
-    return null;
-  }
-
-  return normalizeFood(data.food);
 }
