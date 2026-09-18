@@ -171,8 +171,8 @@ export default function Workout() {
       {tab === 'Records' && <PRList records={records} />}
 
       {openWorkout && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-end md:items-center justify-center" onClick={() => setOpenWorkout(null)}>
-          <div className="bg-surface-light dark:bg-surface-dark rounded-t-2xl md:rounded-2xl w-full md:max-w-md p-5 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-end md:items-center justify-center mf-fade-in" onClick={() => setOpenWorkout(null)}>
+          <div className="bg-surface-light dark:bg-surface-dark rounded-t-2xl md:rounded-2xl w-full md:max-w-md p-5 max-h-[80vh] overflow-y-auto mf-slide-up" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-3">
               <h3 className="font-display font-semibold">{openWorkout.dayLabel}</h3>
               <button onClick={() => setOpenWorkout(null)}><X size={18} /></button>
