@@ -143,10 +143,10 @@ export function ProgramView({ program, onChange, onSave, onStartDay }) {
           <div className="flex items-center justify-between">
             <h4 className="font-medium text-sm">Day {day.dayIndex} — {day.label}</h4>
             <div className="flex gap-1.5">
-              <button onClick={() => regenerateDay(day.dayIndex)} className="p-1.5 rounded-full bg-ink/5 dark:bg-paper/5">
+              <button onClick={() => regenerateDay(day.dayIndex)} className="p-1.5 rounded-full bg-ink/5 dark:bg-paper/5 mf-interactive">
                 <RefreshCw size={14} />
               </button>
-              <button onClick={() => onStartDay(day)} className="p-1.5 rounded-full bg-volt/20 text-navy dark:text-volt">
+              <button onClick={() => onStartDay(day)} className="p-1.5 rounded-full bg-volt/20 text-navy dark:text-volt mf-interactive mf-pop">
                 <Play size={14} />
               </button>
             </div>
