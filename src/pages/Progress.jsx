@@ -158,15 +158,15 @@ export default function Progress() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex flex-col gap-5">
-      <header>
+    <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex flex-col gap-5 mf-stagger">
+     <header className="mf-slide-down">
         <h1 className="font-display text-2xl font-semibold mb-3">Progress</h1>
-        <div className="flex gap-1.5 overflow-x-auto -mx-4 px-4 pb-1">
+        <div className="flex gap-1.5 overflow-x-auto -mx-4 px-4 pb-1 mf-interactive">
           {SECTIONS.map((s) => (
             <button
               key={s}
               onClick={() => setSection(s)}
-              className={`px-3.5 py-1.5 rounded-full text-sm font-medium whitespace-nowrap border ${section === s ? 'bg-navy dark:bg-volt text-volt dark:text-navy border-transparent' : 'border-edge-light dark:border-edge-dark text-ink/60 dark:text-paper/60'}`}
+              className={`px-3.5 py-1.5 rounded-full text-sm font-medium whitespace-nowrap border transition-all duration-200 mf-interactive ${section === s ? 'bg-navy dark:bg-volt text-volt dark:text-navy border-transparent' : 'border-edge-light dark:border-edge-dark text-ink/60 dark:text-paper/60'}`}
             >
               {s}
             </button>
@@ -175,7 +175,7 @@ export default function Progress() {
       </header>
 
       {section === 'Weight' && (
-        <div className="flex flex-col gap-3">
+  <div className="flex flex-col gap-3 mf-stagger">
           <button onClick={() => setShowWeightForm(true)} className="flex items-center justify-center gap-2 py-3 rounded-xl bg-navy dark:bg-volt text-volt dark:text-navy font-semibold text-sm">
             <Scale size={16} /> Log Weight
           </button>
@@ -184,8 +184,8 @@ export default function Progress() {
       )}
 
       {section === 'Measurements' && (
-        <div className="flex flex-col gap-3">
-          <button onClick={() => setShowMeasureForm(true)} className="flex items-center justify-center gap-2 py-3 rounded-xl bg-navy dark:bg-volt text-volt dark:text-navy font-semibold text-sm">
+        <div className="flex flex-col gap-3 mf-stagger">
+          <button onClick={() => setShowMeasureForm(true)} className="flex items-center justify-center gap-2 py-3 rounded-xl bg-navy dark:bg-volt text-volt dark:text-navy font-semibold text-sm mf-interactive mf-pop">
             <Ruler size={16} /> Log Measurements
           </button>
           <MeasurementHistory entries={measurements} />
@@ -193,8 +193,8 @@ export default function Progress() {
       )}
 
       {section === 'Photos' && (
-        <div className="flex flex-col gap-3">
-          <button onClick={() => setShowPhotoForm(true)} className="flex items-center justify-center gap-2 py-3 rounded-xl bg-navy dark:bg-volt text-volt dark:text-navy font-semibold text-sm">
+        <div className="flex flex-col gap-3 mf-stagger">
+          <button onClick={() => setShowPhotoForm(true)} className="flex items-center justify-center gap-2 py-3 rounded-xl bg-navy dark:bg-volt text-volt dark:text-navy font-semibold text-sm mf-interactive mf-pop"">
             <ImageIcon size={16} /> Add Progress Photo
           </button>
           <ProgressPhotoCompare photos={photos} />
@@ -206,10 +206,10 @@ export default function Progress() {
       {section === 'Nutrition' && <NutritionAnalytics profile={profile} />}
 
       {section === 'Habits' && (
-        <div className="flex flex-col gap-3">
+       <div className="flex flex-col gap-3 mf-stagger">
           <WaterTracker water={water} onAdd={addWater} />
           <HabitTracker habits={habitEntry?.habits} onToggle={toggleHabit} />
-          <button onClick={() => setShowSleepForm(true)} className="flex items-center justify-center gap-2 py-3 rounded-xl border border-edge-light dark:border-edge-dark font-medium text-sm">
+          <button onClick={() => setShowSleepForm(true)} className="flex items-center justify-center gap-2 py-3 rounded-xl border border-edge-light dark:border-edge-dark font-medium text-sm mf-interactive mf-pop">
             <Plus size={16} /> Log Sleep
           </button>
         </div>
