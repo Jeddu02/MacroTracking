@@ -37,7 +37,7 @@ export function ProgramDrafter({ profile, onGenerate }) {
     setPrefs((p) => ({ ...p, equipment: p.equipment.includes(eq) ? p.equipment.filter((e) => e !== eq) : [...p.equipment, eq] }));
 
   return (
-    <div className="card p-5 flex flex-col gap-4">
+    <div className="card p-5 flex flex-col gap-4 mf-hover-lift">
       <h3 className="font-display font-semibold">Draft a program</h3>
       <div className="grid grid-cols-2 gap-3">
         <label className="flex flex-col gap-1 text-xs text-ink/50 dark:text-paper/50">
@@ -60,7 +60,7 @@ export function ProgramDrafter({ profile, onGenerate }) {
       </div>
       <button
         onClick={() => onGenerate(generateProgram(prefs))}
-        className="py-3 rounded-xl bg-navy dark:bg-volt text-volt dark:text-navy font-semibold text-sm"
+        className="py-3 rounded-xl bg-navy dark:bg-volt text-volt dark:text-navy font-semibold text-sm mf-interactive mf-pop"
       >
         Generate Program
       </button>
@@ -139,7 +139,7 @@ export function ProgramView({ program, onChange, onSave, onStartDay }) {
         </button>
       </div>
       {program.days.map((day) => (
-        <div key={day.dayIndex} className="card p-4 flex flex-col gap-3">
+        <div key={day.dayIndex} className="card p-4 flex flex-col gap-3 mf-hover-lift">
           <div className="flex items-center justify-between">
             <h4 className="font-medium text-sm">Day {day.dayIndex} — {day.label}</h4>
             <div className="flex gap-1.5">
@@ -151,7 +151,7 @@ export function ProgramView({ program, onChange, onSave, onStartDay }) {
               </button>
             </div>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 mf-stagger">
             {day.exercises.map((ex, idx) => (
               <div key={idx} className="flex items-center gap-2 text-sm">
                 <button onClick={() => setPickerFor({ dayIndex: day.dayIndex, idx, mode: 'replace' })} className="flex-1 text-left font-medium truncate">
@@ -176,7 +176,7 @@ export function ProgramView({ program, onChange, onSave, onStartDay }) {
           </div>
           <button
             onClick={() => setPickerFor({ dayIndex: day.dayIndex, mode: 'add' })}
-            className="flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-edge-light dark:border-edge-dark text-xs"
+            className="flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-edge-light dark:border-edge-dark text-xs mf-interactive"
           >
             <Plus size={13} /> Add Exercise
           </button>
@@ -206,7 +206,7 @@ export function RestTimerPanel({ exerciseName }) {
   const secs = timer.remaining % 60;
 
   return (
-    <div className="card p-4 flex flex-col gap-3">
+    <div className="card p-4 flex flex-col gap-3 mf-hover-lift">
       <div className="flex items-center justify-between">
         <h4 className="font-medium text-sm">Rest timer</h4>
         {timer.remaining > 0 && (
@@ -215,7 +215,7 @@ export function RestTimerPanel({ exerciseName }) {
       </div>
       <div className="flex flex-wrap gap-2">
         {PRESETS.map((p) => (
-          <button key={p} onClick={() => timer.start(p, exerciseName)} className="rounded-full px-3 py-1.5 text-xs font-medium border border-edge-light dark:border-edge-dark">
+          <button key={p} onClick={() => timer.start(p, exerciseName)} className="rounded-full px-3 py-1.5 text-xs font-medium border border-edge-light dark:border-edge-dark mf-interactive">
             {p}s
           </button>
         ))}
@@ -229,7 +229,7 @@ export function RestTimerPanel({ exerciseName }) {
           />
           <button
             onClick={() => custom && timer.start(Number(custom), exerciseName)}
-            className="rounded-full px-3 py-1.5 text-xs font-medium bg-ink/5 dark:bg-paper/5"
+            className="rounded-full px-3 py-1.5 text-xs font-medium bg-ink/5 dark:bg-paper/5 mf-interactive"
           >
             Go
           </button>
@@ -266,7 +266,7 @@ export function ExerciseSession({ exercise, lastPerformance, onComplete, onSkip 
   }
 
   return (
-    <div className="card p-4 flex flex-col gap-3">
+    <div className="card p-4 flex flex-col gap-3 mf-hover-lift mf-page">
       <div className="flex items-center justify-between">
         <div>
           <h4 className="font-display font-semibold">{exercise.name}</h4>
@@ -290,7 +290,7 @@ export function ExerciseSession({ exercise, lastPerformance, onComplete, onSkip 
         <span>RPE</span>
       </div>
       {sets.map((set, i) => (
-        <div key={i} className="grid grid-cols-[auto_1fr_1fr_1fr] gap-2 items-center">
+       <div key={i} className="grid grid-cols-[auto_1fr_1fr_1fr] gap-2 items-center mf-interactive">
           <span className="text-xs w-5 text-ink/40 dark:text-paper/40">{i + 1}</span>
           <input className={inputCls} type="number" value={set.weight} onChange={(e) => updateSet(i, 'weight', e.target.value)} />
           <input className={inputCls} type="number" value={set.reps} onChange={(e) => updateSet(i, 'reps', e.target.value)} />
@@ -312,7 +312,7 @@ export function ExerciseSession({ exercise, lastPerformance, onComplete, onSkip 
             sets.filter((s) => s.weight !== '' && s.reps !== '').map((s) => ({ weight: Number(s.weight), reps: Number(s.reps), rpe: s.rpe ? Number(s.rpe) : null }))
           )
         }
-        className="py-2.5 rounded-xl bg-navy dark:bg-volt text-volt dark:text-navy font-semibold text-sm flex items-center justify-center gap-2"
+        className="py-2.5 rounded-xl bg-navy dark:bg-volt text-volt dark:text-navy font-semibold text-sm flex items-center justify-center gap-2 mf-interactive mf-pop"
       >
         <Check size={16} /> Complete Exercise
       </button>
