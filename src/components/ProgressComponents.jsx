@@ -58,34 +58,181 @@ export function WeightLogForm({ onSave, onClose }) {
 }
 
 export function WeightChart({ entries, goalWeightKg }) {
-  const sorted = [...entries].sort((a, b) => (a.date < b.date ? -1 : 1));
+  const sorted = [...entries]
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  if (sorted.length === 0) {
+    return (
+      <div className="card p-5 text-center">
+        <p className="font-medium text-sm">No weigh-ins yet</p>
+        <p className="text-xs text-ink/40 dark:text-paper/40 mt-1">
+          Log your weight regularly to see your trend.
+        </p>
+      </div>
+    );
+  }
+
+  const latest = sorted[sorted.length - 1];
+  const first = sorted[0];
+
+  const previous =
+    sorted.length > 1
+      ? sorted[sorted.length - 2]
+      : null;
+
+  const changeFromFirst = latest.weightKg - first.weightKg;
+  const changeFromPrevious = previous
+    ? latest.weightKg - previous.weightKg
+    : null;
+
+  const average =
+    sorted.reduce((sum, entry) => sum + Number(entry.weightKg || 0), 0) /
+    sorted.length;
+
+  const minWeight = Math.min(...sorted.map((e) => Number(e.weightKg)));
+  const maxWeight = Math.max(...sorted.map((e) => Number(e.weightKg)));
+
   const data = {
     labels: sorted.map((e) => formatShortDate(e.date)),
     datasets: [
-      { data: sorted.map((e) => e.weightKg), borderColor: '#C6F135', backgroundColor: 'rgba(198,241,53,0.12)', fill: true, tension: 0.3, pointRadius: 2 }
+      {
+        data: sorted.map((e) => e.weightKg),
+        borderColor: '#C6F135',
+        backgroundColor: 'rgba(198,241,53,0.12)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 3,
+        pointHoverRadius: 5
+      }
     ]
   };
-  if (sorted.length === 0) return <p className="text-sm text-ink/40 dark:text-paper/40">No weigh-ins yet.</p>;
-  const latest = sorted[sorted.length - 1];
-  const first = sorted[0];
+
   return (
-    <div className="card p-4">
-      <div className="flex justify-between items-baseline mb-3">
-        <div>
-          <p className="text-2xl font-display font-semibold">{latest.weightKg} kg</p>
+    <div className="flex flex-col gap-3">
+      <div className="card p-4">
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div>
+            <p className="text-xs text-ink/40 dark:text-paper/40">
+              Current weight
+            </p>
+
+            <p className="font-display text-3xl font-semibold">
+              {Number(latest.weightKg).toFixed(1)}
+              <span className="text-base ml-1 font-normal">kg</span>
+            </p>
+
+            <p className="text-xs text-ink/40 dark:text-paper/40 mt-1">
+              {formatShortDate(latest.date)}
+            </p>
+          </div>
+
+          {changeFromPrevious !== null && (
+            <div className="text-right">
+              <p className="text-xs text-ink/40 dark:text-paper/40">
+                Since last
+              </p>
+
+              <p
+                className={`font-display font-semibold ${
+                  changeFromPrevious > 0
+                    ? 'text-fiber'
+                    : changeFromPrevious < 0
+                      ? 'text-protein'
+                      : ''
+                }`}
+              >
+                {changeFromPrevious > 0 ? '+' : ''}
+                {changeFromPrevious.toFixed(1)} kg
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div style={{ height: 180 }}>
+          <Line
+            data={data}
+            options={lineOptions('kg')}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="card p-4">
           <p className="text-xs text-ink/40 dark:text-paper/40">
-            {(latest.weightKg - first.weightKg).toFixed(1)} kg since {formatShortDate(first.date)}
-            {goalWeightKg ? ` · goal ${goalWeightKg} kg` : ''}
+            Average
+          </p>
+          <p className="font-display text-xl font-semibold mt-1">
+            {average.toFixed(1)} kg
+          </p>
+        </div>
+
+        <div className="card p-4">
+          <p className="text-xs text-ink/40 dark:text-paper/40">
+            Total change
+          </p>
+          <p className="font-display text-xl font-semibold mt-1">
+            {changeFromFirst > 0 ? '+' : ''}
+            {changeFromFirst.toFixed(1)} kg
+          </p>
+        </div>
+
+        <div className="card p-4">
+          <p className="text-xs text-ink/40 dark:text-paper/40">
+            Lowest
+          </p>
+          <p className="font-display text-xl font-semibold mt-1">
+            {minWeight.toFixed(1)} kg
+          </p>
+        </div>
+
+        <div className="card p-4">
+          <p className="text-xs text-ink/40 dark:text-paper/40">
+            Highest
+          </p>
+          <p className="font-display text-xl font-semibold mt-1">
+            {maxWeight.toFixed(1)} kg
           </p>
         </div>
       </div>
-      <div style={{ height: 160 }}>
-        <Line data={data} options={lineOptions('kg')} />
-      </div>
+
+      {goalWeightKg && (
+        <div className="card p-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium">
+              Goal weight
+            </p>
+
+            <p className="font-display font-semibold">
+              {goalWeightKg} kg
+            </p>
+          </div>
+
+          <div className="h-2 rounded-full bg-ink/10 dark:bg-paper/10 overflow-hidden">
+            <div
+              className="h-full bg-volt rounded-full transition-all duration-500"
+              style={{
+                width: `${Math.min(
+                  Math.max(
+                    100 -
+                      (Math.abs(latest.weightKg - goalWeightKg) /
+                        Math.max(latest.weightKg, goalWeightKg)) *
+                        100,
+                    0
+                  ),
+                  100
+                )}%`
+              }}
+            />
+          </div>
+
+          <p className="text-xs text-ink/40 dark:text-paper/40 mt-2">
+            {Math.abs(latest.weightKg - goalWeightKg).toFixed(1)} kg from goal
+          </p>
+        </div>
+      )}
     </div>
   );
 }
-
 // ---------------------------------------------------------------------------
 // Body measurements
 // ---------------------------------------------------------------------------
