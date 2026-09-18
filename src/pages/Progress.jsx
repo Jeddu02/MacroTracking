@@ -194,7 +194,7 @@ export default function Progress() {
 
       {section === 'Photos' && (
         <div className="flex flex-col gap-3 mf-stagger">
-          <button onClick={() => setShowPhotoForm(true)} className="flex items-center justify-center gap-2 py-3 rounded-xl bg-navy dark:bg-volt text-volt dark:text-navy font-semibold text-sm mf-interactive mf-pop"">
+          <button onClick={() => setShowPhotoForm(true)} className="flex items-center justify-center gap-2 py-3 rounded-xl bg-navy dark:bg-volt text-volt dark:text-navy font-semibold text-sm mf-interactive mf-pop">
             <ImageIcon size={16} /> Add Progress Photo
           </button>
           <ProgressPhotoCompare photos={photos} />
