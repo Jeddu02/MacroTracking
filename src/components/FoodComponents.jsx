@@ -359,12 +359,25 @@ function ConfirmPhoto({ photo, onRetake, onConfirm }) {
 // ---------------------------------------------------------------------------
 export function AnalyzingScreen() {
   return (
-    <div className="fixed inset-0 z-50 bg-navy flex flex-col items-center justify-center gap-4 text-paper">
-      <div className="w-12 h-12 rounded-full border-4 border-volt/30 border-t-volt animate-spin" />
-      <p className="font-display text-lg">Analyzing food…</p>
-      <p className="text-xs opacity-60 max-w-xs text-center">
-        Identifying items and estimating portions. You'll be able to review and edit everything before it's logged.
-      </p>
+    <div className="fixed inset-0 z-50 bg-navy flex flex-col items-center justify-center gap-5 text-paper mf-scale-in">
+      <div className="mf-pulse-soft">
+        <div className="w-16 h-16 rounded-full border-4 border-volt/20 border-t-volt animate-spin" />
+      </div>
+
+      <div className="text-center mf-slide-up">
+        <p className="font-display text-lg font-semibold">
+          Analyzing food…
+        </p>
+
+        <p className="text-xs opacity-60 max-w-xs text-center mt-2">
+          Identifying items and estimating portions. You'll be able to review
+          and edit everything before it's logged.
+        </p>
+      </div>
+
+      <div className="w-40 h-1 rounded-full bg-paper/10 overflow-hidden mf-fade-in">
+        <div className="h-full w-1/2 bg-volt rounded-full animate-pulse" />
+      </div>
     </div>
   );
 }
