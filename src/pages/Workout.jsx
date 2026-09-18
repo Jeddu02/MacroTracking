@@ -112,8 +112,8 @@ export default function Workout() {
   if (session) {
     const currentExercise = session.day.exercises[session.exerciseIndex];
     return (
-      <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex flex-col gap-4">
-        <header className="flex items-center justify-between">
+      <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex flex-col gap-4 mf-stagger">
+        <header className="flex items-center justify-between mf-slide-down">
           <div>
             <p className="text-xs text-ink/40 dark:text-paper/40">
               Exercise {session.exerciseIndex + 1} of {session.day.exercises.length}
@@ -136,15 +136,15 @@ export default function Workout() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex flex-col gap-5">
-      <header>
+    <div className="max-w-2xl mx-auto px-4 pt-6 pb-4 flex flex-col gap-5 mf-stagger">
+      <header className="mf-slide-down">
         <h1 className="font-display text-2xl font-semibold mb-3">Workout</h1>
-        <div className="flex gap-1 bg-ink/5 dark:bg-paper/5 rounded-full p-1 w-fit">
+       <div className="flex gap-1 bg-ink/5 dark:bg-paper/5 rounded-full p-1 w-fit mf-interactive">
           {TABS.map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium ${tab === t ? 'bg-surface-light dark:bg-surface-dark shadow-sm' : 'text-ink/50 dark:text-paper/50'}`}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 mf-interactive ${tab === t ? 'bg-surface-light dark:bg-surface-dark shadow-sm' : 'text-ink/50 dark:text-paper/50'}`}
             >
               {t}
             </button>
